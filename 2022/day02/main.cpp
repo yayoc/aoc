@@ -2,125 +2,75 @@
 
 #include "../utils.h"
 
-const int rock = 1;
-const int paper = 2;
-const int scissors = 3;
+enum Element { Rock = 1, Paper = 2, Scissors = 3 };
+enum Result { Lost = 0, Draw = 3, Win = 6 };
 
-map<string, int> elements = {
-    {"A", rock},
-    {"X", rock},
-    {"B", paper},
-    {"Y", paper},
-    {"C", scissors},
-    {"Z", scissors},
+map<string, Element> elements = {
+    {"A", Rock},
+    {"X", Rock},
+    {"B", Paper},
+    {"Y", Paper},
+    {"C", Scissors},
+    {"Z", Scissors},
 };
 
-const int lost = 0;
-const int draw = 3;
-const int win = 6;
-
-map<string, int> means = {
-    {"X", lost},
-    {"Y", draw},
-    {"Z", win},
+map<string, Result> results = {
+    {"X", Lost},
+    {"Y", Draw},
+    {"Z", Win},
 };
 
-// a: you, b: opponent
-int score(int a, int b)
-{
-    if (a == b)
-        return draw + a;
-
-    switch (a)
-    {
-    case rock:
-        switch (b)
-        {
-        case paper:
-            return lost + a; 
-        case scissors:
-            return win + a; 
-        }
-    case paper:
-        switch (b)
-        {
-        case rock:
-            return win + a; 
-        case scissors:
-            return lost + a; 
-        }
-    case scissors:
-        switch (b)
-        {
-        case rock:
-            return lost + a; 
-        case paper:
-            return win + a; 
-        }
-        break;
+Element counter(Element e) {
+    switch (e) {
+    case Rock: return Paper;
+    case Paper: return Scissors;
+    case Scissors: return Rock;
+    default: error("unexpected element");
     }
+}
 
-    error("unexpected args");
+Result result(Element you, Element opponent) {
+    if (you == opponent) return Draw;
+    return (you == counter(opponent)) ? Win : Lost;
 }
 
 void part1() {
     ifstream ifs = open_file("input.txt");
 
     int sum = 0;
-    string e;
     string line;
     while (getline(ifs, line))
     {
         istringstream iss(line);
         string o, y;
         if (!(iss >> o >> y)) { break; } 
-        sum += score(elements.at(y), elements.at(o));
+        Result r = result(elements.at(y), elements.at(o));
+        sum += (r + elements.at(y));
     }
     cout << "sum=" << sum << endl;
-}
-
-// a: opponent, b: mean
-int score2(int a, int b) {
-    if (b == draw) 
-        return draw + a;
-
-    if (b == lost) {
-        switch (a) {
-            case rock:
-                return lost + scissors;
-            case scissors:
-                return lost + paper;
-            case paper:
-                return lost + rock;
-        }
-    }
-
-    if (b == win) {
-        switch (a) {
-            case rock:
-                return win + paper;
-            case scissors:
-                return win + rock;
-            case paper:
-                return win + scissors;
-        }
-    }
-
-    error("unexpected args");
 }
 
 void part2() {
    ifstream ifs = open_file("input.txt");
 
     int sum = 0;
-    string e;
     string line;
     while (getline(ifs, line))
     {
         istringstream iss(line);
         string a, b;
         if (!(iss >> a >> b)) { break; } 
-        sum += score2(elements.at(a), means.at(b));
+        Result r = results.at(b);
+        Element opponent = elements.at(a);
+        Element you;
+        if (r == Draw) {
+            you = opponent;
+        } else if (r == Win) {
+            you = counter(opponent);
+        } else if (r == Lost) {
+            you = counter(counter(opponent));
+        }
+        sum += (r + you); 
     }
     cout << "sum=" << sum << endl;
 }
