@@ -22,14 +22,13 @@ string common_chars(const string &str1, const string &str2, const string &str3)
     return common_chars(common, str3);
 }
 
-int priority(const char &c)
-{
-    return isupper(c) ? static_cast<int>(c) - 38 : static_cast<int>(c) - 96;
-}
-
 class Priority
 {
 public:
+    static int priority(const char &c)
+    {
+        return isupper(c) ? static_cast<int>(c) - 38 : static_cast<int>(c) - 96;
+    }
     int operator()(int sum, char c) const { return sum + priority(c); }
 };
 
