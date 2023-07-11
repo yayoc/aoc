@@ -3,6 +3,8 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include <unordered_set>
+#include <numeric>
 
 using namespace std;
 
