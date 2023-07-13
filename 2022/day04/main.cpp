@@ -16,13 +16,19 @@ ostream &operator<<(ostream &os, const Section &s)
 
 bool is_fully_covered(const Section &s1, const Section &s2)
 {
+    // since l <= r is guaranteed
     if (s1.l == s2.l)
         return true;
 
+    // s1: ---------------
+    // s2:    ----------
     if (s1.l < s2.l)
     {
         return s2.r <= s1.r;
     }
+
+    // s1:   ---------
+    // s2: -------------
     return s1.r <= s2.r;
 }
 
