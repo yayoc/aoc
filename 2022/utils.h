@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <numeric>
 #include <regex>
+#include <stack>
 
 using namespace std;
 
