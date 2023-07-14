@@ -30,23 +30,23 @@ ostream &operator<<(ostream &os, const Procedure &p)
 }
 
 template <typename T>
-stack<T> reverse_stack(stack<T> &origin)
+stack<T> reverse_stack(stack<T> &s)
 {
-    stack<T> reveresed;
-    while (!origin.empty())
+    stack<T> r;
+    while (!s.empty())
     {
-        reveresed.push(origin.top());
-        origin.pop();
+        r.push(s.top());
+        s.pop();
     }
-    return reveresed;
+    return r;
 }
 
-void reverse_crates(vector<stack<Crate>> &crates)
+void reverse_crates(vector<stack<Crate>> &vs)
 {
     int i = 0;
-    for (auto s : crates)
+    for (auto &s : vs)
     {
-        crates[i] = reverse_stack(s);
+        vs[i] = reverse_stack(s);
         ++i;
     };
 }
@@ -65,7 +65,7 @@ void print_stack(stack<T> &s)
 template <typename T>
 void print_top(const vector<stack<T>> &v)
 {
-    for (auto s : v)
+    for (auto &s : v)
     {
         if (!s.empty())
         {
@@ -75,14 +75,12 @@ void print_top(const vector<stack<T>> &v)
     cout << endl;
 }
 
-void part1()
+void parse(vector<stack<Crate>> &vs, vector<Procedure> &vp)
 {
     ifstream ifs = open_file("input.txt");
     bool procedure = false;
     regex pat{R"(move (\d*) from (\d*) to (\d*))"};
     string line;
-    vector<stack<Crate>> crates(9);
-    vector<Procedure> procedures;
     while (getline(ifs, line))
     {
         if (line.empty())
@@ -95,29 +93,34 @@ void part1()
             smatch matches;
             if (regex_search(line, matches, pat))
             {
-                procedures.push_back(Procedure{stoi(matches[1]), stoi(matches[2]), stoi(matches[3])});
+                vp.push_back(Procedure{stoi(matches[1]), stoi(matches[2]), stoi(matches[3])});
             }
         }
         else
         {
-            vector<size_t> indexes = {1, 5, 9, 13, 17, 21, 25, 29, 33};
-            size_t stack_i = 0;
-            for (auto i : indexes)
+            for (size_t i = 0; i < vs.size(); ++i)
             {
-                if (line[i] != ' ' && !isdigit(line[i]))
+                size_t index = i * 4 + 1;
+                if (line[index] != ' ' && !isdigit(line[index]))
                 {
-                    Crate c{line[i]};
-                    crates[stack_i].push(c);
+                    Crate c{line[index]};
+                    vs[i].push(c);
                 }
-                ++stack_i;
             }
         }
     }
     // stack needs to be reversed
-    reverse_crates(crates);
+    reverse_crates(vs);
+}
+
+void part1()
+{
+    vector<stack<Crate>> crates(9);
+    vector<Procedure> procedures;
+    parse(crates, procedures);
 
     // run procedures
-    for (auto p : procedures)
+    for (auto &p : procedures)
     {
         for (int i = 0; i < p.count; ++i)
         {
@@ -140,47 +143,12 @@ void part1()
 
 void part2()
 {
-    ifstream ifs = open_file("input.txt");
-    bool procedure = false;
-    regex pat{R"(move (\d*) from (\d*) to (\d*))"};
-    string line;
     vector<stack<Crate>> crates(9);
     vector<Procedure> procedures;
-    while (getline(ifs, line))
-    {
-        if (line.empty())
-        {
-            procedure = true;
-            continue;
-        }
-        if (procedure)
-        {
-            smatch matches;
-            if (regex_search(line, matches, pat))
-            {
-                procedures.push_back(Procedure{stoi(matches[1]), stoi(matches[2]), stoi(matches[3])});
-            }
-        }
-        else
-        {
-            vector<size_t> indexes = {1, 5, 9, 13, 17, 21, 25, 29, 33};
-            size_t stack_i = 0;
-            for (auto i : indexes)
-            {
-                if (line[i] != ' ' && !isdigit(line[i]))
-                {
-                    Crate c{line[i]};
-                    crates[stack_i].push(c);
-                }
-                ++stack_i;
-            }
-        }
-    }
-    // stack needs to be reversed
-    reverse_crates(crates);
+    parse(crates, procedures);
 
     // run procedures
-    for (auto p : procedures)
+    for (auto &p : procedures)
     {
         stack<Crate> tmp;
         for (int i = 0; i < p.count; ++i)
