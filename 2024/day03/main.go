@@ -1,32 +1,69 @@
 package main
 
+import (
+	"log"
+	"os"
+	"strconv"
+	"fmt"
+    "regexp"
+)
+
 func isNum(s string) bool {
     _, err := strconv.ParseFloat(s, 64)
     return err == nil
 }
 
-func parse(filePath string) [](int,int) {
+type Mul struct {
+    left int
+    right int
+}
+
+type Do struct {
+    start int
+    end int
+}
+
+type Dont struct {
+    start int
+    end int
+}
+
+func parse(filePath string) []Mul {
     b, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
     str := string(b)
-    var nums [](int, int)
+    var muls []Mul
 
-    match, _ := regexp.MatchString("mul\(\d{1,3},\d{1,3}\)", str)
-    fmt.Println(match)
+    re, err := regexp.Compile(`mul\((?P<left>\d{1,3}),(?P<right>\d{1,3})\)`)
+    if err != nil {
+		log.Fatal(err)
+    }
+
+    matches := re.FindAllStringSubmatch(str, -1)
+
+    for _, match := range matches {
+        left, _ := strconv.Atoi(match[re.SubexpIndex("left")])
+        right, _ := strconv.Atoi(match[re.SubexpIndex("right")])
+        muls = append(muls, Mul{left, right})
+    }
+
+    return muls
 }
 
-func part1(nums [](int,int)) {
+func part1(muls []Mul) {
     sum := 0
-    for x, y := range nums {
-        sum += x * y
+    for _, m := range muls {
+        sum += m.left * m.right 
     }
     fmt.Println(sum)
 }
 
+func part2(muls []Mul) {
+}
+
 func main() {
-    nums := parse("./input.txt")
-    part1(nums)
+    muls := parse("./input.txt")
+    part1(muls)
 }
